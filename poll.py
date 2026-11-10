@@ -2,11 +2,13 @@
 
 Har POLL_SECONDS soniyada Instagram direktini tekshiradi va ishga tushgandan KEYIN kelgan
 yangi xabarlarga javob beradi. Eski xabarlarga tegmaydi. Server yoki webhook kerak emas.
+GitHub Actions uchun: RUN_MINUTES=4 (shuncha daqiqa ishlab to'xtaydi) va LOOKBACK_MINUTES=45
+(oxirgi 45 daqiqada kelib, hali javobsiz qolgan xabarlarga ham javob beradi).
 DRY_RUN=1 bo'lsa hech narsa yubormaydi, faqat nima qilishini ko'rsatadi."""
 import logging
 import os
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import agent
 import ig
@@ -16,6 +18,8 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 log = logging.getLogger("ig-agent")
 
 POLL_SECONDS = int(os.getenv("POLL_SECONDS", "30"))
+RUN_MINUTES = float(os.getenv("RUN_MINUTES", "0"))  # 0 = to'xtamasdan ishlaydi
+LOOKBACK_MINUTES = float(os.getenv("LOOKBACK_MINUTES", "0"))
 DRY_RUN = os.getenv("DRY_RUN") == "1"
 # Vergul bilan ajratilgan usernamelar; berilsa, faqat shularga javob beradi (sinov uchun)
 ONLY = {u.strip().lower() for u in os.getenv("ONLY_USERNAMES", "").split(",") if u.strip()}
@@ -58,15 +62,17 @@ def check(start: datetime, done: set[str]):
 
 
 def main():
-    start = datetime.now(timezone.utc)
+    began = time.monotonic()
+    start = datetime.now(timezone.utc) - timedelta(minutes=LOOKBACK_MINUTES)
     done: set[str] = set()
-    log.info("Agent ishga tushdi (@%s). Har %s soniyada tekshiradi.%s", ig.ig_id(), POLL_SECONDS,
-             " DRY_RUN" if DRY_RUN else "")
+    log.info("Agent ishga tushdi. Har %s soniyada tekshiradi.%s", POLL_SECONDS, " DRY_RUN" if DRY_RUN else "")
     while True:
         try:
             check(start, done)
         except Exception:
             log.exception("Tekshirishda xato")
+        if RUN_MINUTES and time.monotonic() - began + POLL_SECONDS > RUN_MINUTES * 60:
+            break
         time.sleep(POLL_SECONDS)
 
 

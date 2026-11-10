@@ -1,0 +1,34 @@
+name: Instagram agent
+
+# Har 5 daqiqada ishga tushadi, 4 daqiqa davomida direktni tekshirib javob beradi.
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: instagram-agent
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -q -r requirements.txt
+      - run: python poll.py
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          OWNER_NAME: Yusuf
+          POLL_SECONDS: "20"
+          RUN_MINUTES: "4"
+          LOOKBACK_MINUTES: "45"
