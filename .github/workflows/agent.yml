@@ -12,7 +12,8 @@ on:
 
 concurrency:
   group: instagram-agent
-  cancel-in-progress: false
+  # Yangi kod yuklanganda eski ishlab turgani to'xtab, yangisi darhol boshlanadi
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 
 permissions:
   contents: read
@@ -32,6 +33,7 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          PRIVATE_KNOWLEDGE: ${{ secrets.PRIVATE_KNOWLEDGE }}
           OWNER_NAME: Yusuf
           POLL_SECONDS: "20"
           RUN_MINUTES: "300"

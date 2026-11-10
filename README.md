@@ -28,6 +28,7 @@ cp .env.example .env
 
 `knowledge/men-haqimda.md` faylini o'zingiz haqingizdagi ma'lumot bilan to'ldiring (yoki yangi fayllar qo'shing). `.env` dagi `OWNER_NAME` ga ismingizni yozing.
 
+- Repozitoriy ochiq bo'lsa, maxfiy ma'lumotni (telefon raqam va h.k.) faylga yozmang — uni GitHub'da `PRIVATE_KNOWLEDGE` nomli Secret'ga kiriting, agent uni ham bazaga qo'shib oladi.
 - Har bir mavzuni alohida abzats qilib, orasida bo'sh qator qoldiring.
 - Fayllarni o'zgartirsangiz, serverni qayta ishga tushirish shart emas — keyingi xabarda yangi ma'lumot ishlatiladi.
 - Siz haqingizdagi savolga bazada javob bo'lmasa, agent to'qimaydi — "o'zi ko'rishi bilan javob yozadi" deydi (`FALLBACK_TEXT`).

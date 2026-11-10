@@ -1,6 +1,7 @@
 """Bilimlar bazasi: knowledge/ papkasidagi .md/.txt fayllarni o'qiydi,
 bo'laklarga ajratadi va savolga eng mos bo'laklarni topadi."""
 import hashlib
+import os
 import json
 import math
 import threading
@@ -47,7 +48,7 @@ class KnowledgeBase:
         return sorted(p for p in self.folder.rglob("*") if p.suffix.lower() in (".md", ".txt"))
 
     def _current_stamp(self):
-        return tuple((str(p), p.stat().st_mtime_ns) for p in self._files())
+        return tuple((str(p), p.stat().st_mtime_ns) for p in self._files()) + (os.getenv("PRIVATE_KNOWLEDGE", ""),)
 
     def _embed(self, texts: list[str]) -> list[list[float]]:
         res = []
@@ -79,6 +80,9 @@ class KnowledgeBase:
             for p in self._files():
                 for c in _chunks(p.read_text(encoding="utf-8")):
                     texts.append(f"[{p.name}]\n{c}")
+            # Maxfiy ma'lumot (masalan telefon raqam) faylda emas, PRIVATE_KNOWLEDGE o'zgaruvchisida turadi
+            for c in _chunks(os.getenv("PRIVATE_KNOWLEDGE", "").replace("\\n", "\n")):
+                texts.append(f"[maxfiy]\n{c}")
             keys = [hashlib.sha256(f"{self.embed_model}:{t}".encode()).hexdigest() for t in texts]
             missing = [(k, t) for k, t in zip(keys, texts) if k not in cache]
             if missing:
