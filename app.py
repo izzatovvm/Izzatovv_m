@@ -1,4 +1,4 @@
-"""Instagram webhook serveri. Ishga tushirish: uvicorn app:app --host 0.0.0.0 --port 8000"""
+"""Ixtiyoriy: webhook serveri (poll.py o'rniga, ochiq HTTPS manzilingiz bo'lsa). Ishga tushirish: uvicorn app:app --host 0.0.0.0 --port 8000"""
 import hashlib
 import hmac
 import json
@@ -6,34 +6,19 @@ import logging
 import os
 from collections import OrderedDict
 
-import httpx
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request, Response
 
 import agent
+import ig
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("ig-agent")
 
-ACCESS_TOKEN = os.getenv("IG_ACCESS_TOKEN", "")
 VERIFY_TOKEN = os.getenv("IG_VERIFY_TOKEN", "")
 APP_SECRET = os.getenv("IG_APP_SECRET", "")
-GRAPH = f"https://graph.instagram.com/{os.getenv('GRAPH_VERSION', 'v23.0')}"
 
 app = FastAPI()
 _seen: OrderedDict[str, None] = OrderedDict()  # takroriy webhooklarni o'tkazib yuborish uchun
-
-
-def send_message(recipient_id: str, text: str):
-    for i in range(0, len(text), 1000):  # Instagram bitta xabarda 1000 belgigacha ruxsat beradi
-        r = httpx.post(
-            f"{GRAPH}/me/messages",
-            headers={"Authorization": f"Bearer {ACCESS_TOKEN}"},
-            json={"recipient": {"id": recipient_id}, "message": {"text": text[i : i + 1000]}},
-            timeout=30,
-        )
-        if r.status_code >= 400:
-            log.error("Instagramga yuborishda xato %s: %s", r.status_code, r.text)
-            return
 
 
 def handle(sender_id: str, text: str):
@@ -42,7 +27,7 @@ def handle(sender_id: str, text: str):
     except Exception:
         log.exception("Javob tayyorlashda xato")
         reply = agent.FALLBACK
-    send_message(sender_id, reply)
+    ig.send_message(sender_id, reply)
 
 
 @app.get("/")

@@ -44,10 +44,14 @@ _history: dict[str, deque] = defaultdict(lambda: deque(maxlen=10))  # har bir su
 _lock = threading.Lock()
 
 
-def answer(user_id: str, text: str) -> str:
+def answer(user_id: str, text: str, history: list | None = None) -> str:
+    """history berilsa (Instagramdan olingan suhbat), xotiradagi tarix o'rniga shu ishlatiladi."""
     context = "\n\n---\n\n".join(kb.search(text)) or "(bo'sh)"
-    with _lock:
-        past = list(_history[user_id])
+    if history is not None:
+        past = history
+    else:
+        with _lock:
+            past = list(_history[user_id])
     contents = past + [{"role": "user", "parts": [{"text": text}]}]
     config = types.GenerateContentConfig(
         system_instruction=SYSTEM.format(owner=OWNER, fallback=FALLBACK, context=context),
