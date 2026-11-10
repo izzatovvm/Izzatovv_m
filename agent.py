@@ -13,8 +13,8 @@ from kb import KnowledgeBase
 load_dotenv()
 
 # Asosiy model band bo'lsa (503) yoki xato bersa, navbatdagi zaxira model sinab ko'riladi
-MODELS = [m for m in (os.getenv("GEMINI_MODEL", "gemini-flash-latest"),
-                       os.getenv("GEMINI_FALLBACK_MODEL", "gemini-flash-lite-latest")) if m]
+MODELS = [m for m in (os.getenv("GEMINI_MODEL", "gemini-flash-lite-latest"),
+                       os.getenv("GEMINI_FALLBACK_MODEL", "gemini-flash-latest")) if m]
 OWNER = os.getenv("OWNER_NAME", "").strip() or "akkaunt egasi"
 FALLBACK = os.getenv("FALLBACK_TEXT", "").strip() or (
     "Buni aniq bilmayman, o'zi ko'rishi bilan javob yozadi."
@@ -36,7 +36,7 @@ Bilimlar bazasi:
 
 client = genai.Client(
     api_key=os.environ["GEMINI_API_KEY"],
-    http_options=types.HttpOptions(api_version="v1beta", timeout=30_000),
+    http_options=types.HttpOptions(api_version="v1beta", timeout=20_000),
 )
 kb = KnowledgeBase(client, embed_model=os.getenv("GEMINI_EMBED_MODEL", "gemini-embedding-001"))
 
