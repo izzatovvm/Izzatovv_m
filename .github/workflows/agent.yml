@@ -1,10 +1,14 @@
 name: Instagram agent
 
-# Har 5 daqiqada ishga tushadi, 4 daqiqa davomida direktni tekshirib javob beradi.
+# Bitta ishga tushish 5 soat davomida direktni har 20 soniyada tekshiradi.
+# GitHub jadvali kechikib ishlagani uchun (amalda soatiga ~1 marta) navbatdagi ishga tushish
+# navbatda kutib turadi va oldingisi tugashi bilan boshlanadi — shunda uzilish bo'lmaydi.
 on:
   schedule:
     - cron: "*/5 * * * *"
   workflow_dispatch:
+  push:
+    branches: [main]
 
 concurrency:
   group: instagram-agent
@@ -16,7 +20,7 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 320
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -30,5 +34,5 @@ jobs:
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
           OWNER_NAME: Yusuf
           POLL_SECONDS: "20"
-          RUN_MINUTES: "4"
-          LOOKBACK_MINUTES: "45"
+          RUN_MINUTES: "300"
+          LOOKBACK_MINUTES: "60"
