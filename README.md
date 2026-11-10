@@ -1,6 +1,6 @@
 # Instagram AI agent
 
-Instagram direktiga yozgan mijozlarga bilimlar bazasidagi ma'lumot asosida Google Gemini API orqali avtomatik javob beradi.
+Instagram direktiga yozgan do'stlar va yaqinlarga siz band bo'lganingizda Google Gemini API orqali javob beradigan shaxsiy AI yordamchi. Oddiy suhbatni o'zi olib boradi, siz haqingizdagi savollarga esa faqat bilimlar bazasidagi ma'lumot bilan javob beradi.
 
 ## Fayllar
 
@@ -24,11 +24,12 @@ cp .env.example .env
 
 ## 2. Bilimlar bazasini to'ldirish
 
-`knowledge/namuna.md` ni o'chirib, o'z fayllaringizni qo'shing (narxlar, manzil, ish vaqti, tez-tez beriladigan savollar va h.k.).
+`knowledge/men-haqimda.md` faylini o'zingiz haqingizdagi ma'lumot bilan to'ldiring (yoki yangi fayllar qo'shing). `.env` dagi `OWNER_NAME` ga ismingizni yozing.
 
 - Har bir mavzuni alohida abzats qilib, orasida bo'sh qator qoldiring.
 - Fayllarni o'zgartirsangiz, serverni qayta ishga tushirish shart emas — keyingi xabarda yangi ma'lumot ishlatiladi.
-- Bazada javob bo'lmasa, agent `.env` dagi `FALLBACK_TEXT` matnini yuboradi.
+- Siz haqingizdagi savolga bazada javob bo'lmasa, agent to'qimaydi — "o'zi ko'rishi bilan javob yozadi" deydi (`FALLBACK_TEXT`).
+- Agent o'zini siz deb ko'rsatmaydi, AI yordamchi ekanini aytadi.
 
 ## 3. Terminalda sinash
 
@@ -55,11 +56,11 @@ Kerak bo'ladi: Instagram **Business yoki Creator** akkaunt va internetdan ochiq 
    - `messages` maydoniga obuna bo'ling.
 6. `.env` ni o'zgartirgach, serverni qayta ishga tushiring.
 
-Ilova "Development" rejimida bo'lsa, faqat ilovaga rol berilgan akkauntlar yozgan xabarlarga javob boradi. Barcha mijozlarga javob berish uchun Meta'da **App Review** dan o'tib, `instagram_business_manage_messages` ruxsatini olish kerak.
+Ilova "Development" rejimida bo'lsa, faqat ilovaga rol berilgan akkauntlar yozgan xabarlarga javob boradi. Hammaga javob berish uchun Meta'da **App Review** dan o'tib, `instagram_business_manage_messages` ruxsatini olish kerak.
 
 ## Eslatmalar
 
-- Suhbat tarixi (har bir mijoz bilan oxirgi 10 ta xabar) xotirada saqlanadi, server o'chsa tozalanadi.
+- Suhbat tarixi (har bir suhbatdosh bilan oxirgi 10 ta xabar) xotirada saqlanadi, server o'chsa tozalanadi.
 - Faqat matnli xabarlarga javob beriladi (rasm, ovozli xabar o'tkazib yuboriladi).
 - Access token muddati 60 kun — uni vaqtida yangilab turing.
 - Model `.env` dagi `GEMINI_MODEL` orqali almashtiriladi.

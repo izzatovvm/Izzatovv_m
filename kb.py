@@ -4,6 +4,7 @@ import hashlib
 import json
 import math
 import threading
+import time
 from pathlib import Path
 
 CHUNK_SIZE = 900  # bitta bo'lakning taxminiy uzunligi (belgi)
@@ -51,7 +52,14 @@ class KnowledgeBase:
     def _embed(self, texts: list[str]) -> list[list[float]]:
         res = []
         for i in range(0, len(texts), 50):
-            r = self.client.models.embed_content(model=self.embed_model, contents=texts[i : i + 50])
+            for attempt in range(3):  # server band bo'lsa qayta urinamiz
+                try:
+                    r = self.client.models.embed_content(model=self.embed_model, contents=texts[i : i + 50])
+                    break
+                except Exception:
+                    if attempt == 2:
+                        raise
+                    time.sleep(2 * (attempt + 1))
             res += [e.values for e in r.embeddings]
         return res
 
