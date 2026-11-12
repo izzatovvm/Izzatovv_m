@@ -20,7 +20,7 @@ def ig_id() -> str:
     global _ig_id
     if not _ig_id:
         r = _http.get(f"{GRAPH}/me/assigned_instagram_accounts")
-        r.raise_for_status()
+        _check(r)
         _ig_id = r.json()["data"][0]["id"]
     return _ig_id
 
@@ -39,11 +39,35 @@ def recent_conversations(limit: int = 10, messages: int = 8) -> list[dict]:
             "fields": f"updated_time,messages.limit({messages}){{id,created_time,from,message}}",
         },
     )
-    r.raise_for_status()
+    _check(r)
     return r.json().get("data", [])
 
 
-def send_message(recipient_id: str, text: str) -> bool:
+# Agent yuborgan xabarlarga qo'shiladigan ko'rinmas belgi: shu orqali agent o'z xabarini
+# akkaunt egasi qo'lda yozgan xabardan ajratadi.
+MARK = "\u200b"
+
+
+class Blocked(Exception):
+    """Meta ilovaning API'ga kirishini to'sib qo'ygan."""
+
+
+def _check(r: httpx.Response):
+    if r.status_code >= 400:
+        if "API access blocked" in r.text:
+            raise Blocked(r.text)
+        r.raise_for_status()
+
+
+def mark(text: str) -> str:
+    head, sep, tail = text.partition(" ")
+    return f"{head}{MARK}{sep}{tail}"
+
+
+def send_message(recipient_id: str, text: str) -> list[str] | None:
+    """Yuborilgan xabarlarning ID ro'yxatini qaytaradi; xato bo'lsa None."""
+    ids = []
+    text = mark(text)
     for i in range(0, len(text), 1000):  # Instagram bitta xabarda 1000 belgigacha ruxsat beradi
         r = _http.post(
             f"{GRAPH}/{ig_id()}/messages",
@@ -51,5 +75,6 @@ def send_message(recipient_id: str, text: str) -> bool:
         )
         if r.status_code >= 400:
             log.error("Instagramga yuborishda xato %s: %s", r.status_code, r.text)
-            return False
-    return True
+            return None
+        ids.append(r.json().get("message_id", ""))
+    return ids
